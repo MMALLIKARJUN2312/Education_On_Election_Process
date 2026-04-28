@@ -5,6 +5,10 @@ export class VertexAIService implements IAIService {
     private vertexAI: VertexAI;
     private generativeModel: any;
 
+    /**
+     * Initializes the Vertex AI generative model with strict safety settings
+     * and system instructions for impartial civic education.
+     */
     constructor() {
         const project = process.env.GOOGLE_CLOUD_PROJECT || 'mock-project';
         const location = process.env.VERTEX_AI_LOCATION || 'us-central1';
@@ -19,8 +23,9 @@ export class VertexAIService implements IAIService {
             model: 'gemini-2.5-pro',
             generationConfig: {
                 maxOutputTokens: 2048,
-                temperature: 0.2, 
+                temperature: 0.1, // Lower temperature for more deterministic/factual answers
             },
+
             safetySettings: [
                 {
                     category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,

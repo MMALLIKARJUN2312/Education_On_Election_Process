@@ -1,23 +1,48 @@
 import { Router } from 'express';
+import { body } from 'express-validator';
 import { ElectionController } from '../controllers/ElectionController';
 import { AskElectionQuestionUseCase } from '../../application/usecases/AskElectionQuestionUseCase';
 import { VertexAIService } from '../../infrastructure/ai/VertexAIService';
 import rateLimit from 'express-rate-limit';
 
+import { FirestoreService } from '../../infrastructure/database/FirestoreService';
+
 const router = Router();
 
 // DI Setup
 const aiService = new VertexAIService();
-const askElectionQuestionUseCase = new AskElectionQuestionUseCase(aiService);
+const firestoreService = new FirestoreService();
+const askElectionQuestionUseCase = new AskElectionQuestionUseCase(aiService, firestoreService);
 const electionController = new ElectionController(askElectionQuestionUseCase);
+
+
+// Timeline Endpoint
+router.get('/timeline', async (req, res) => {
+    const timeline = await firestoreService.getElectionTimeline();
+    res.status(200).json(timeline);
+});
 
 // Rate limiting middleware specifically for the AI endpoint
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
-    message: 'Too many requests created from this IP, please try again after 15 minutes'
+    max: 50, // Stricter limit for AI calls
+    message: {
+        status: 429,
+        error: 'Too many questions. Please wait 15 minutes.'
+    }
 });
 
-router.post('/ask', apiLimiter, electionController.askQuestion);
+// Validation middleware
+const askValidation = [
+    body('question')
+        .isString().withMessage('Question must be a string')
+        .trim()
+        .notEmpty().withMessage('Question cannot be empty')
+        .isLength({ max: 500 }).withMessage('Question must be less than 500 characters')
+        .escape()
+];
+
+router.post('/ask', apiLimiter, askValidation, electionController.askQuestion);
 
 export default router;
+
