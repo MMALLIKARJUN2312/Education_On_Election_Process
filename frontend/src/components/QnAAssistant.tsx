@@ -45,38 +45,54 @@ export const QnAAssistant: React.FC = () => {
   };
 
   return (
-    <div className="glass-card">
-      <h2>Interactive Assistant</h2>
-      <div className="chat-container">
+    <div className="glass-card" role="region" aria-label="Election Q&A Assistant">
+      <h2 id="assistant-title">Interactive Assistant</h2>
+      <div 
+        className="chat-container" 
+        role="log" 
+        aria-live="polite" 
+        aria-relevant="additions"
+        aria-labelledby="assistant-title"
+      >
         {messages.map((msg) => (
-          <div key={msg.id} className={`message ${msg.sender}`}>
+          <article 
+            key={msg.id} 
+            className={`message ${msg.sender}`}
+            aria-label={`${msg.sender === 'user' ? 'You' : 'Assistant'} said:`}
+          >
             <p>{msg.text}</p>
             {msg.details && msg.details.steps && msg.details.steps.length > 0 && (
-              <ul className="bot-steps">
-                {msg.details.steps.map((step, idx) => (
-                  <li key={idx}>{step}</li>
-                ))}
-              </ul>
+              <section className="bot-steps">
+                <h3>Steps:</h3>
+                <ul>
+                  {msg.details.steps.map((step, idx) => (
+                    <li key={idx}>{step}</li>
+                  ))}
+                </ul>
+              </section>
             )}
             {msg.details && msg.details.relatedTerms && msg.details.relatedTerms.length > 0 && (
-              <div className="bot-terms">
+              <section className="bot-terms">
                 <strong>Related Terms:</strong>
                 <ul>
                   {msg.details.relatedTerms.map((rt, idx) => (
-                    <li key={idx}>{rt.term}: {rt.definition}</li>
+                    <li key={idx}>
+                      <dfn>{rt.term}</dfn>: {rt.definition}
+                    </li>
                   ))}
                 </ul>
-              </div>
+              </section>
             )}
-          </div>
+          </article>
         ))}
         {loading && (
-          <div className="message bot">
-            <Loader2 className="animate-spin" />
+          <div className="message bot" aria-busy="true" aria-label="Thinking...">
+            <Loader2 className="animate-spin" aria-hidden="true" />
+            <span>Processing your question...</span>
           </div>
         )}
       </div>
-      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+      <div className="chat-input-area">
         <input 
           type="text" 
           value={input} 
@@ -84,12 +100,20 @@ export const QnAAssistant: React.FC = () => {
           placeholder="Ask about voter registration, polling stations, etc."
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           disabled={loading}
-          aria-label="Ask a question about elections"
+          aria-label="Your question about the election process"
+          aria-required="true"
         />
-        <button onClick={handleSend} disabled={loading} aria-label="Send message">
-          <Send size={18} /> Send
+        <button 
+          onClick={handleSend} 
+          disabled={loading || !input.trim()} 
+          aria-label="Send message"
+          type="button"
+        >
+          <Send size={18} aria-hidden="true" />
+          <span>Send</span>
         </button>
       </div>
     </div>
   );
 };
+
