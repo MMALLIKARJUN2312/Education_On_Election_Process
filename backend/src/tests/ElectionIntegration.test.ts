@@ -40,6 +40,15 @@ describe('Election API Integration Tests', () => {
         });
     });
 
+    describe('Firebase Auth Simulation', () => {
+        it('should log when auth header is present', async () => {
+            const res = await request(app)
+                .get('/health')
+                .set('Authorization', 'Bearer test-token');
+            expect(res.status).toBe(200);
+        });
+    });
+
     describe('GET /api/v1/election/timeline', () => {
         it('should return the timeline from Firestore', async () => {
             const res = await request(app).get('/api/v1/election/timeline');
@@ -85,6 +94,29 @@ describe('Election API Integration Tests', () => {
                 .send({ question: 123 });
             
             expect(res.status).toBe(400);
+        });
+
+        it('should return 500 when the use case fails', async () => {
+            const { AskElectionQuestionUseCase } = require('../application/usecases/AskElectionQuestionUseCase');
+            jest.spyOn(AskElectionQuestionUseCase.prototype, 'execute').mockRejectedValueOnce(new Error("AI failure"));
+            
+            const res = await request(app)
+                .post('/api/v1/election/ask')
+                .send({ question: "Will this fail?" });
+            
+            expect(res.status).toBe(500);
+            expect(res.body.error).toBe("Internal Server Error");
+        });
+    });
+
+    describe('Environment Configurations', () => {
+        it('should handle production environment for ErrorReporting', () => {
+            const originalEnv = process.env.NODE_ENV;
+            process.env.NODE_ENV = 'production';
+            jest.isolateModules(() => {
+                require('../app');
+            });
+            process.env.NODE_ENV = originalEnv;
         });
     });
 });

@@ -18,6 +18,8 @@ const electionController = new ElectionController(askElectionQuestionUseCase);
 
 // Timeline Endpoint
 router.get('/timeline', async (req, res) => {
+    // Efficiency: Cache the timeline in the browser for 1 hour to reduce redundant network calls
+    res.setHeader('Cache-Control', 'public, max-age=3600');
     const timeline = await firestoreService.getElectionTimeline();
     res.status(200).json(timeline);
 });

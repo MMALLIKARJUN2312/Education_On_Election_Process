@@ -18,6 +18,9 @@ import logger from './infrastructure/logging/logger';
 
 const app: Application = express();
 
+// Trust proxy for Cloud Run/Load Balancer
+app.set('trust proxy', 1);
+
 // Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes

@@ -20,7 +20,7 @@ export class VertexAIService implements IAIService {
         });
 
         this.generativeModel = this.vertexAI.getGenerativeModel({
-            model: 'gemini-2.5-pro',
+            model: 'gemini-1.5-pro',
             generationConfig: {
                 maxOutputTokens: 2048,
                 temperature: 0.1, // Lower temperature for more deterministic/factual answers

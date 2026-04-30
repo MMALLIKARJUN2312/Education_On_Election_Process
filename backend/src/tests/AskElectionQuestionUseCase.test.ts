@@ -37,4 +37,17 @@ describe('AskElectionQuestionUseCase', () => {
         expect(result.answer).toBe("Just 18 years.");
         expect(result.steps).toHaveLength(0);
     });
+
+    it('should throw error for empty question', async () => {
+        await expect(useCase.execute("")).rejects.toThrow('Question cannot be empty');
+    });
+
+    it('should handle firestore logging failure gracefully', async () => {
+        mockAIService.askQuestion.mockResolvedValue("{}");
+        mockFirestoreService.logQuery.mockRejectedValue(new Error("Firestore down"));
+        
+        const result = await useCase.execute("test");
+        expect(result).toBeDefined();
+        // Should not throw error
+    });
 });
