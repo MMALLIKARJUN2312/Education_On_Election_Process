@@ -33,7 +33,7 @@ export const QnAAssistant: React.FC = () => {
         details: response
       };
       setMessages(prev => [...prev, botMsg]);
-    } catch (error) {
+    } catch {
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         sender: 'bot',

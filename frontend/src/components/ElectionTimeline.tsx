@@ -16,7 +16,7 @@ export const ElectionTimeline: React.FC = () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/timeline`);
         // Map description to desc if backend uses different naming
-        setTimeline(response.data.map((item: any) => ({
+        setTimeline(response.data.map((item: { title: string; description?: string; desc?: string }) => ({
             title: item.title,
             description: item.description || item.desc
         })));
@@ -30,18 +30,18 @@ export const ElectionTimeline: React.FC = () => {
   if (timeline.length === 0) return null;
 
   return (
-    <div className="glass-card">
-      <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>General Election Process</h2>
-      <div className="timeline">
+    <div className="glass-card" role="region" aria-labelledby="timeline-title">
+      <h2 id="timeline-title" style={{ textAlign: 'center', marginBottom: '2rem' }}>General Election Process</h2>
+      <ol className="timeline" aria-label="Step-by-step election process">
         {timeline.map((step, index) => (
-          <div key={index} className={`timeline-item ${index % 2 === 0 ? 'left' : 'right'}`}>
-            <div className="content">
+          <li key={index} className={`timeline-item ${index % 2 === 0 ? 'left' : 'right'}`}>
+            <article className="content">
               <h3>{index + 1}. {step.title}</h3>
               <p>{step.description}</p>
-            </div>
-          </div>
+            </article>
+          </li>
         ))}
-      </div>
+      </ol>
     </div>
   );
 };

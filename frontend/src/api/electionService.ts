@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://election-education-backend-787937687469.us-central1.run.app/api/v1/election';
+const API_BASE_URL = 'https://election-education-backend-jjgscd3gxa-uc.a.run.app/api/v1/election';
 
 export interface AIResponse {
   answer: string;
@@ -14,6 +14,6 @@ export const askElectionQuestion = async (question: string): Promise<AIResponse>
     return response.data;
   } catch (error) {
     console.error('Error fetching data:', error);
-    throw new Error('Could not fetch the answer. Please try again.');
+    throw new Error('Could not fetch the answer. Please try again.', { cause: error });
   }
 };
